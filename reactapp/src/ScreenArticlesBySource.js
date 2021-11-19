@@ -45,6 +45,15 @@ function ScreenArticlesBySource(props) {
     setVisible(false);
   };
 
+  var saveArticle = async article => {
+    props.addToWishList(article)
+    var response = await fetch('/wishlist-article', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'name=${article.title}&content=${article.content}&description=${article.description}&img=${article.urlToImage}&token={props.token}'
+    })
+  }
+
   return (
     <div>
       <Nav />
@@ -73,7 +82,7 @@ function ScreenArticlesBySource(props) {
                   type="like"
                   key="ellipsis"
                   onClick={() => {
-                    props.addToWishList(article);
+                    saveArticle(article);
                   }}
                 />,
               ]}
