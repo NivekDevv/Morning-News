@@ -10,6 +10,17 @@ function ScreenSource(props) {
   const [selectedLang, setSelectedLang] = useState(props.selectedLang);
 
   useEffect(() => {
+    const findLang = async () => {
+      const reqFind = await fetch(`/user-lang?token=${props.token}`);
+      const resultFind = await reqFind.json();
+
+      setSelectedLang(resultFind.lang);
+    };
+
+    findLang();
+  }, []);
+
+  useEffect(() => {
     const APIResultsLoading = async () => {
       var langue = "fr";
       var country = "fr";
@@ -29,6 +40,28 @@ function ScreenSource(props) {
     APIResultsLoading();
   }, [selectedLang]);
 
+  var updateLang = async (lang) => {
+    setSelectedLang(lang);
+
+    const reqLang = await fetch("/user-lang", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `lang=${lang}&token=${props.token}`,
+    });
+  };
+
+  var styleBorderFr = { width: "40px", margin: "10px", cursor: "pointer" };
+
+  if (selectedLang == "fr") {
+    styleBorderFr.border = "1px solid black";
+  }
+
+  var styleBorderEn = { width: "40px", margin: "10px", cursor: "pointer" };
+
+  if (selectedLang == "en") {
+    styleBorderEn.border = "1px solid black";
+  }
+
   return (
     <div>
       <Nav />
@@ -42,14 +75,14 @@ function ScreenSource(props) {
         className="Banner"
       >
         <img
-          style={{ width: "40px", margin: "10px", cursor: "pointer" }}
+          style={styleBorderFr}
           src="/images/fr.png"
-          onClick={() => setSelectedLang("fr")}
+          onClick={() => updateLang("fr")}
         />
         <img
-          style={{ width: "40px", margin: "10px", cursor: "pointer" }}
+          style={styleBorderEn}
           src="/images/uk.png"
-          onClick={() => setSelectedLang("en")}
+          onClick={() => updateLang("en")}
         />
       </div>
 
@@ -77,7 +110,7 @@ function ScreenSource(props) {
 }
 
 function mapStateToProps(state) {
-  return { selectedLang: state.selectedLang };
+  return { selectedLang: state.selectedLang, token: state.token };
 }
 
 function mapDispatchToProps(dispatch) {
