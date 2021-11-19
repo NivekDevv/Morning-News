@@ -5,6 +5,49 @@ var uid2 = require("uid2");
 var bcrypt = require("bcrypt");
 
 var userModel = require("../models/users");
+var articleModel = require("../models/article");
+
+router.post("/wishlist-article", async function (req, res, next) {
+  var result = false;
+  var user = await userModel.findOne({
+    token: req.body.token,
+  });
+  if (user != null) {
+    var newArticle = new articleModel({
+      title: req.body.title,
+      description: req.body.description,
+      content: req.body.content,
+      urlToImage: req.body.img,
+      userId: user._id,
+    });
+
+    saveArticle = await newArticle.save();
+    if (saveArticle) {
+      result = true;
+    }
+  }
+
+  res.json({ result });
+});
+
+router.delete("/wishlist-article", async function (req, res, next) {
+  const user = await userModel.findOne({
+    token: req.body.token,
+  });
+  if (user != null) {
+    var returnDb = await articleModel.deleteOne({
+      title: req.body.title,
+      user: user._id,
+    });
+
+    var result = false;
+    if (returnDb.deleteCount == 1) {
+      result = true;
+    }
+  }
+
+  res.json({ result });
+});
 
 router.post("/sign-up", async function (req, res, next) {
   var error = [];
@@ -77,17 +120,6 @@ router.post("/sign-in", async function (req, res, next) {
   }
 
   res.json({ result, user, error, token });
-});
-
-router.get("/user-lang", async function (req, res, next) {
-  var lang = null;
-  var user = await userModel.findOne({ token: req.query.token });
-
-  if (user != null) {
-    lang = user.lang;
-  }
-
-  res.json({ lang });
 });
 
 router.post("/user-lang", async function (req, res, next) {
