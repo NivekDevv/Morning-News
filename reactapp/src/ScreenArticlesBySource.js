@@ -45,14 +45,16 @@ function ScreenArticlesBySource(props) {
     setVisible(false);
   };
 
-  var saveArticle = async article => {
-    props.addToWishList(article)
-    var response = await fetch('/wishlist-article', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: 'name=${article.title}&content=${article.content}&description=${article.description}&img=${article.urlToImage}&token={props.token}'
-    })
-  }
+  var saveArticle = async (article) => {
+    console.log(props.token);
+    props.addToWishList(article);
+
+    var save = await fetch("/wishlist-article", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `name=${article.title}&content=${article.content}&desc=${article.description}&img=${article.urlToImage}&token=${props.token}`,
+    });
+  };
 
   return (
     <div>
@@ -111,5 +113,11 @@ function mapDispatchToProps(dispatch) {
     },
   };
 }
+function mapStateToProps(state) {
+  return { selectedLang: state.selectedLang, token: state.token };
+}
 
-export default connect(null, mapDispatchToProps)(ScreenArticlesBySource);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ScreenArticlesBySource);

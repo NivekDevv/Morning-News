@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { Card, Icon, Modal } from "antd";
 import Nav from "./Nav";
@@ -11,6 +11,24 @@ function ScreenMyArticles(props) {
   const [visible, setVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  useEffect(() => {
+    var findArticles = async () => {
+      var articleWish = await fetch("/wishlist-article?token=${props.token}");
+      var body = await articleWish.json();
+    };
+    findArticles();
+  }, []);
+
+  var deleteArticle = async (title) => {
+    props.deleteToWishList(title);
+
+    var deleteReq = await fetch("/wishlist-article", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `title=${title}&token=${props.token}`,
+    });
+  };
 
   var showModal = (title, content) => {
     setVisible(true);
@@ -80,7 +98,7 @@ function ScreenMyArticles(props) {
                 <Icon
                   type="delete"
                   key="ellipsis"
-                  onClick={() => props.deleteToWishList(article.title)}
+                  onClick={() => deleteArticle(article.title)}
                 />,
               ]}
             >

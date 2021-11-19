@@ -8,21 +8,22 @@ var userModel = require("../models/users");
 var articleModel = require("../models/article");
 
 router.post("/wishlist-article", async function (req, res, next) {
+  console.log(req.body);
   var result = false;
   var user = await userModel.findOne({
     token: req.body.token,
   });
   if (user != null) {
     var newArticle = new articleModel({
-      title: req.body.title,
-      description: req.body.description,
+      title: req.body.name,
+      description: req.body.desc,
       content: req.body.content,
       urlToImage: req.body.img,
       userId: user._id,
     });
 
-    saveArticle = await newArticle.save();
-    if (saveArticle) {
+    var saveArticle = await newArticle.save();
+    if (saveArticle.name) {
       result = true;
     }
   }
@@ -31,22 +32,33 @@ router.post("/wishlist-article", async function (req, res, next) {
 });
 
 router.delete("/wishlist-article", async function (req, res, next) {
+  var result = false;
   const user = await userModel.findOne({
     token: req.body.token,
   });
   if (user != null) {
     var returnDb = await articleModel.deleteOne({
       title: req.body.title,
-      user: user._id,
+      userId: user._id,
     });
 
-    var result = false;
     if (returnDb.deleteCount == 1) {
       result = true;
     }
   }
 
   res.json({ result });
+});
+
+router.get("/wishlist-article", async function (req, res, next) {
+  var articles = [];
+  var user = await userModel.findOne({ token: req.query.token });
+
+  if (user != null) {
+    articles = await articleModel.find({ userId: user._id });
+  }
+
+  res.json({ articles });
 });
 
 router.post("/sign-up", async function (req, res, next) {
